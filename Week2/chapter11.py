@@ -1,4 +1,4 @@
-from utils import Variable
+from .utils import *
 import numpy as np
 '''
 여러개의 input과 output으로 변경해보기 => 리스트(튜플)에 넣어서 처리
@@ -18,12 +18,7 @@ class Function:
         raise NotImplementedError()
     def backwrad(self, gy):
         raise NotImplementedError()
-    #덧셈을 해주는 Add 클래스 객체
-class Add(Function): #Function의 모든 인스턴스들을 상속받는다.
-    def forward(self, xs):
-        x0, x1= xs
-        y=x0+x1
-        return (y,)
+
 #코드 실행
 xs=[Variable(np.array(2)), Variable(np.array(3))] #리스트로 준비
 f=Add()

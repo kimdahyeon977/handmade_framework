@@ -22,13 +22,18 @@ class Variable:
             x.grad = f.backward(y.grad)
             
             if x.creator is not None:
-                funcs.append(x.creator) 
+                funcs.append(x.creator)
+    def as_array(x):
+        if np.isscalr(x):
+            return np.array(x)
+        return x
 class Function:
     def __call__(self, input):
         x=input.data
         y=self.forward(x)
         output=Variable(y)
         self.input = input #self를 쓴 이유 : 입력 변수를 기억
+        self.output = output
         return output
     def forward(self, x):
         raise NotImplementedError()
@@ -58,6 +63,11 @@ def square(x):
 def exp(x):
     return Exp()(x)
 
+class Add(Function): #Function의 모든 인스턴스들을 상속받는다.
+    def forward(self, xs):
+        x0, x1= xs
+        y=x0+x1
+        return (y,)
 '''
 1. NotImplemented : 지원하지 않는 연산자이라고 알리기 위함. return None과 같음
 모든 시도가 NotImplemented로 끝난다면, 그제서야 파이썬은 TypeError를 발생시킨다.
