@@ -6,14 +6,13 @@ class Function:
         ys=self.forward(*xs) #self.forward(x0, x1)
         if not isinstance(ys, tuple):
             ys=(ys,)
-        outputs=[Variable(np.asarray(y) for y in ys)] #반환 원소가 하나뿐이라면 해당 원소를 직접 반환
+        outputs=[Variable(Variable.as_array(y)) for y in ys] #반환 원소가 하나뿐이라면 해당 원소를 직접 반환
         
         for output in outputs:
-            output.set_creator(self)
+            output.set_creator(self) #Add가 저장됨.
         self.inputs=inputs
         self.outputs= outputs
         # 리스트의 원소가 한개라면 첫번째 원소를 반환
-        print(self.inputs)
         return outputs if len(outputs) >1 else outputs[0]
 class Add(Function): #Function의 모든 인스턴스들을 상속받는다.
     def forward(self, x0, x1):

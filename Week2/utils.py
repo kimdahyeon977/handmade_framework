@@ -24,7 +24,7 @@ class Variable:
             if x.creator is not None:
                 funcs.append(x.creator)
     def as_array(x):
-        if np.isscalr(x):
+        if np.isscalar(x):
             return np.array(x)
         return x
 class Function:
