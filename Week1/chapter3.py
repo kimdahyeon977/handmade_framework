@@ -1,4 +1,4 @@
-from chaper2 import Square
+from Week1.chaper2 import Square
 from chaper1 import Variable
 import numpy as np
 f = Square()
