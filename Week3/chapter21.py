@@ -18,7 +18,7 @@ class Function:
         # 리스트의 원소가 한개라면 첫번째 원소를 반환
         return outputs if len(outputs) >1 else outputs[0]
 class Variable:
-    __array_priority__ = 200
+    __array_priority__ = 200 #우선순위 지정
     def __init__(self, data, name = None):
         #타입 에러 방지
         if data is not None:
@@ -133,7 +133,7 @@ class Mul(Function):
         return gy*x1 , gy*x0
 def mul(x0, x1):
     return Mul()(x0,x1)
-Variable.__add__ = add
+Variable.__add__ = add #Variable 인스턴스의 __add__메서드를 호출할때 add함수가 불린다.
 Variable.__radd__ = add
 Variable.__mul__ = mul
 Variable.__rmul__ = mul
