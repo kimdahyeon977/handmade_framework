@@ -23,4 +23,3 @@ y= Variable(np.array(1.0))
 z= matyas(x,y)
 z.backward()
 print(x.grad, y.grad)
-
