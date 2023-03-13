@@ -1,7 +1,7 @@
 import weakref
 import numpy as np
 import contextlib
-
+import dezero
 
 # =============================================================================
 # Config
@@ -40,7 +40,18 @@ class Variable:
         self.grad = None
         self.creator = None
         self.generation = 0
-
+    #가변 인수를 받는 reshape메서드를 추가
+    def reshape(self, *shape):
+        if len(shape)==1 and isinstance(shape[0],(tuple,list)):
+            shape = shape[0]
+        return dezero.functions.reshape(self, shape)
+    def transpose(self):
+        return dezero.functions.transpose(self)
+    def sum(self, axis= None, keepdims = False):
+            return dezero.functions.sum(self, axis, keepdims)
+    @property
+    def T(self):
+        return dezero.functions.transpose(self)
     @property
     def shape(self):
         return self.data.shape
@@ -101,7 +112,7 @@ class Variable:
                     if x.grad is None:
                         x.grad = gx
                     else:
-                        x.grad = x.grad + gx
+                        x.grad = x.grad + gx #이계산도 대상
 
                     if x.creator is not None:
                         add_func(x.creator)
@@ -154,11 +165,17 @@ class Function:
 # =============================================================================
 class Add(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 + x1
         return y
 
     def backward(self, gy):
-        return gy, gy
+        #broadcast_to 함수의 역전파는 sum_to 함수에 해당한다.
+        gx0,gx1 =  gy, gy
+        if self.x0_shape != self.x1_shape:
+            gx0 = dezero.functions.sum_to(gx0,self.x0_shape)
+            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0,gx1
 
 
 def add(x0, x1):
@@ -168,13 +185,19 @@ def add(x0, x1):
 
 class Mul(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 * x1
         return y
 
     def backward(self, gy):
         #x0, x1 = self.inputs[0].data, self.inputs[1].data
         x0,x1 = self.inputs #Variable 인스턴스를 그대로 사용
-        return gy * x1, gy * x0
+        gx0 = gy*x1
+        gx1 = gy*x0
+        if self.x0_shape != self.x1_shape:
+            gx0 = dezero.functions.sum_to(gx0,self.x0_shape)
+            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0, gx1
 
 
 def mul(x0, x1):
@@ -196,11 +219,16 @@ def neg(x):
 
 class Sub(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 - x1
         return y
 
     def backward(self, gy):
-        return gy, -gy
+        gx0, gx1 = gy, -gy
+        if self.x0_shape != self.x1_shape:
+            gx0 = dezero.functions.sum_to(gx0, self.x0_shape)
+            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0, gx1
 
 
 def sub(x0, x1):
