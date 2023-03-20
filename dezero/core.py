@@ -3,6 +3,7 @@ import numpy as np
 import contextlib
 import dezero
 
+
 # =============================================================================
 # Config
 # =============================================================================
@@ -282,6 +283,8 @@ class Pow(Function):
 def pow(x, c):
     return Pow(c)(x)
 
+class Parameter(Variable):
+    pass
 
 def setup_variable():
     Variable.__add__ = add
