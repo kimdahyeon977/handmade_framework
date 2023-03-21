@@ -50,7 +50,7 @@ class Linear(Layer):
     def _init_W(self):
         I,O = self.in_size , self.out_size
         W_data = np.random.randn(I,O).astype(self.dtype) * np.sqrt(1/I)
-        self.W_data = W_data
+        self.W.data = W_data
     def forward(self, x):
         #데이터를 흘려보내는 시점에 가중치 초기화
         if self.W.data is None:
