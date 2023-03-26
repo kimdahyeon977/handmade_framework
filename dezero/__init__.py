@@ -19,5 +19,6 @@ else:
     from dezero.core import as_variable
     from dezero.core import setup_variable
     from dezero.models import Model
+    from dezero.datasets import Dataset
 
 setup_variable()
