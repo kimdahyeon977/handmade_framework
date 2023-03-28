@@ -14,10 +14,10 @@ batch_size = 30
 hidden_size = 10
 lr=1.0
 
-x,t = dezero.datasets.get_spiral(train=True)
-model = MLP((hidden_size, 3)) #첫번째 완전 연결계층의 출력크기는 hidden_size, 두번쨰는 3인것
+train_set = dezero.datasets.Spiral()
+model = MLP((hidden_size, 3))
 optimizer = optimizers.SGD(lr).setup(model)
-data_size = len(x)
+data_size = len(train_set)
 max_iter = math.ceil(data_size / batch_size)
 
 for epoch in range(max_epoch):
@@ -26,9 +26,10 @@ for epoch in range(max_epoch):
     
     for i in range(max_iter):
         batch_index = index[i * batch_size:(i+1)*batch_size]
-        batch_x= x[batch_index]
-        batch_t = t[batch_index]
-        
+        batch= [train_set[i] for i in batch_index]
+        batch_x = np.array([i[0] for i in batch])
+        batch_t = np.array([i[1] for i in batch])
+                
         y=model(batch_x)
         loss = F.softmax_cross_entropy(y,batch_t)
         model.cleargrads()

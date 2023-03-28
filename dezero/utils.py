@@ -1,6 +1,7 @@
 import os
 import subprocess
 import urllib.request
+import numpy as np
 def get_dot_graph(output, verbose=True):            
     def _dot_var(v, verbose=False):
         dot_var = '{} [label="{}", color=orange, style=filled]\n'
@@ -112,6 +113,24 @@ def get_file(url, file_name=None):
     print(" Done")
 
     return file_path
+
+def pair(x):
+    if isinstance(x, int):
+        return (x, x)
+    elif isinstance(x, tuple):
+        assert len(x) == 2
+        return x
+    else:
+        raise 
+    
+def logsumexp(x, axis=1):
+    m = x.max(axis=axis, keepdims=True)
+    y = x - m
+    np.exp(y, out=y)
+    s = y.sum(axis=axis, keepdims=True)
+    np.log(s, out=s)
+    m += s
+    return m
 
 def sum_to(x, shape):
     """Sum elements along axes to output an array of a given shape.
