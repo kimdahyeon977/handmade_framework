@@ -2,6 +2,7 @@ from dezero.core import Parameter
 import weakref
 import numpy as np
 import dezero.functions as F
+import os
 
 class Layer:
     def __init__(self):
@@ -13,8 +14,22 @@ class Layer:
         self.inputs = [weakref.ref(x) for x in inputs]
         self.outputs = [weakref.ref(y) for y in outputs]
         return outputs if len(outputs) > 1 else outputs[0]
+    def _flatten_params(self, params_dict, parent_key= ''):
+        for name in self._params:
+            obj = self.__dict__[name]
+            key = parent_key + '/' + name if parent_key else name
+            if isinstance(obj, Layer):
+                obj._flatten_params(params_dict , key)
+            else:
+                params_dict[key] = obj
     def forward(self, inputs):
         raise NotImplementedError()
+    def to_cpu(self):
+        for param in self.params():
+            param.to_cpu()
+    def to_gpu(self):
+        for param in self.params():
+            param.to_gpu()
     def params(self):
         for name in self._params:
             obj = self.__dict__[name]

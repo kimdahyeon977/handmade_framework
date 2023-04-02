@@ -28,12 +28,18 @@ def no_grad():
 # =============================================================================
 # Variable / Function
 # =============================================================================
+try:
+    import cupy
+    array_types = (np.ndarray , cupy.ndarray)
+except ImportError:
+    array_types = (np.ndarray)
+    
 class Variable:
     __array_priority__ = 200
 
     def __init__(self, data, name=None):
         if data is not None:
-            if not isinstance(data, np.ndarray):
+            if not isinstance(data, array_types):
                 raise TypeError('{} is not supported'.format(type(data)))
 
         self.data = data
@@ -42,6 +48,13 @@ class Variable:
         self.creator = None
         self.generation = 0
     #가변 인수를 받는 reshape메서드를 추가
+    def to_cpu(self):
+        if self.data is not None:
+            self.data = dezero.cuda.as_numpy(self.data) #gpu to cpu
+    def to_gpu(self):
+        if self.data is not None:
+            self.data = dezero.cuda.as_cupy(self.data) #cpu to gpu
+            
     def reshape(self, *shape):
         if len(shape)==1 and isinstance(shape[0],(tuple,list)):
             shape = shape[0]
@@ -87,8 +100,8 @@ class Variable:
 
     def backward(self, retain_grad=False , create_graph = False):
         if self.grad is None:
-            #self.grad = np.ones_like(self.data)
-             self.grad = Variable(np.ones_like(self.data))
+            xp = dezero.cuda.get_array_module(self.data)
+            self.grad = Variable(xp.ones_like(self.data))
         funcs = []
         seen_set = set()
 
@@ -129,10 +142,17 @@ def as_variable(obj):
     return Variable(obj)
 
 
-def as_array(x):
+def as_array(x, array_module = np):
     if np.isscalar(x):
-        return np.array(x)
+        return array_module.array(x)
     return x
+
+def add(x0,x1):
+    x1 = as_array(x1,dezero.cuda.get_array_module(x0.data))
+    return Add()(x0,x1)
+def mul(x0,x1):
+    x1= as_array(x1, dezero.cuda.get_array_moduel(x0.data))
+    return Mul()(x0,x1)
 
 
 class Function:

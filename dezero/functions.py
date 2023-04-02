@@ -2,6 +2,7 @@ import numpy as np
 from dezero.core import Function
 from dezero.core import as_variable , Variable, as_array
 from dezero import utils
+from dezero import cuda
 # -----
 class Sigmoid(Function):
     def forward(self, x):
@@ -17,14 +18,15 @@ def sigmoid(x):
     return Sigmoid()(x)
 
 class Sin(Function):
-		def forward(self, x):
-				y = np.sin(x)
-				return y
+    def forward(self, x):
+        xp = cuda.get_array_module(x)
+        y = np.sin(x)
+        return y
 
-		def backward(self, gy):
-				x, = self.inputs
-				gx = gy * cos(x)
-				return gx
+    def backward(self, gy):
+                x, = self.inputs
+                gx = gy * cos(x)
+                return gx
 
 def sin(x):
 	return Sin()(x)
