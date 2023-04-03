@@ -1,8 +1,9 @@
 import numpy as np
-from dezero.core import Function
+from dezero.core import Function 
 from dezero.core import as_variable , Variable, as_array
 from dezero import utils
 from dezero import cuda
+import dezero
 # -----
 class Sigmoid(Function):
     def forward(self, x):
@@ -17,6 +18,16 @@ class Sigmoid(Function):
 def sigmoid(x):
     return Sigmoid()(x)
 
+def dropout(x,dropout_ratio = 0.5):
+    x = as_variable(x)
+    if dezero.Config.train:
+        xp = cuda.get_array_module(x)
+        mask = xp.random.rand(*x.shape) > dropout_ratio
+        scale = xp.array(1.0-dropout_ratio).astype(x.dtype)
+        y= x*mask/scale
+        return y
+    else:
+        return y
 class Sin(Function):
     def forward(self, x):
         xp = cuda.get_array_module(x)
