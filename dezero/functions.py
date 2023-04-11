@@ -27,7 +27,7 @@ def dropout(x,dropout_ratio = 0.5):
         y= x*mask/scale
         return y
     else:
-        return y
+        return x
 class Sin(Function):
     def forward(self, x):
         xp = cuda.get_array_module(x)
@@ -381,3 +381,8 @@ def softmax_cross_entropy_simple(x, t):
     tlog_p = log_p[np.arange(N), t.data]
     y = -1 * sum(tlog_p) / N
     return y
+from dezero.functions_conv import conv2d_simple
+from dezero.functions_conv import im2col
+from dezero.functions_conv import col2im
+from dezero.functions_conv import pooling_simple
+from dezero.functions_conv import pooling
