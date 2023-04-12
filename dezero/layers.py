@@ -3,6 +3,7 @@ import weakref
 import numpy as np
 import dezero.functions as F
 import os
+from dezero import cuda
                     
 class Layer:
     def __init__(self):
@@ -79,7 +80,7 @@ class RNN(Layer):
         else:
             h_new = F.tanh(self.x2h(x)+self.h2h(self.h))
             self.h = h_new
-            return h_new
+        return h_new
 class Linear(Layer):
     def __init__(self, out_size,  nobias= False, dtype = np.float32, in_size = None):
         super().__init__()
@@ -134,4 +135,9 @@ class Conv2d(Layer):
     def forward(self, x):
         if self.W.data is None:
             self.in_channels = x.shape[1]
+            xp = cuda.get_array_module(x)
+            self._init_W(xp)
+
+        y = F.conv2d(x, self.W, self.b, self.stride, self.pad)
+        return y
                     
